@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = "rack-colorized_logger"
-  s.version     = "1.0.0"
+  s.version     = "1.0.1"
   s.authors     = ['Kenichi Nakamura']
   s.email       = ["kenichi.nakamura@gmail.com"]
   s.homepage    = "https://github.com/kenichi/rack-colorized_logger"
