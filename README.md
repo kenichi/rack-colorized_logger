@@ -3,6 +3,7 @@ Installation
 `gem install rack-colorized_logger`
 
 or in `Gemfile`:
+
 `gem 'rack-colorized_logger', :group => :development`
 
 Config
@@ -47,8 +48,17 @@ end
 
 config/environments/development.rb:
 ```ruby
-
+YourRailsApp::Application.configure do |config|
+  ...
+  config.middleware.use Rack::ColorizedLogger
+  ...
+end
 ```
+
+####NOTE differences if `Rails` is `defined?`
+ * `@path` defaults to false
+ * `@assets` defaults to '/assets'
+ * `@public` defaults to `::File.join Rails.root, 'public'`
 
 ###custom:
 
