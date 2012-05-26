@@ -36,7 +36,7 @@ module Rack
 
     def call env
       @request = Rack::Request.new(env)
-      if run?
+      if not public_file? and not asset?
         @out.puts "path:".bold + " " + @request.path if @path
         @colors.each do |thing, color_a|
           if thing.respond_to? :call
@@ -55,10 +55,12 @@ module Rack
 
     private
 
-    def run?
-      run = @public_map.select {|p| @request.path.index(%{/#{p}}) == 0}.empty?  if @public_map and not @public_map.empty?
-      run = @request.path.index(@assets) == 0 if @assets
-      run
+    def public_file?
+      !@public_map.select {|p| @request.path.index(%{/#{p}}) == 0}.empty? if @public_map and not @public_map.empty?
+    end
+
+    def asset?
+      @request.path.index(@assets) == 0 unless @assets.nil?
     end
 
     def pretty_colors_h(hash, k_color, v_color = nil, padding = 1, start = true)
