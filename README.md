@@ -1,17 +1,20 @@
 Installation
 ------------
-`sudo gem install rack-colorized_logger`
+`gem install rack-colorized_logger`
+
+or in `Gemfile`:
+`gem 'rack-colorized_logger', :group => :development`
 
 Config
 ------
 
-it would like a hash of keys that are `Symbol`s or `String`s of valid methods
+it would like a hash of keys that are `Symbol` or `String` of valid methods
 to call on the `Rack::Request` object. the method should return a `Hash`-like
-object. for customization purposes, the key can be a block that returns an
+object. for customization purposes, the key can be a `Proc` that returns an
 array where the first element is the name to display, and the second is the
-`Hash`-like object.
+data to display.
 
-default:
+###default:
 
 ```ruby
 DEFAULT_COLORS = {
@@ -21,7 +24,7 @@ DEFAULT_COLORS = {
 }
 ```
 
-2 ways to customize:
+###2 ways to customize:
 
  * pass block to constructor
  * set `Rack::ColorizedLogger::CONFIG`
@@ -29,7 +32,7 @@ DEFAULT_COLORS = {
 Examples
 --------
 
-default:
+###default:
 
 ```ruby
 require 'sinatra'
@@ -40,7 +43,14 @@ configure do
 end
 ```
 
-custom:
+###default in rails:
+
+config/environments/development.rb:
+```ruby
+
+```
+
+###custom:
 
 ```ruby
 require 'sinatra'
@@ -74,12 +84,9 @@ configure do
 end
 ```
 
-custom variant (`config.ru`):
+###custom variant (`config.ru`):
 
 ```ruby
-require 'sinatra/base'
-require 'rack-colorized_logger'
-
 # default to only params and cookies
 Rack::ColorizedLogger::COLORS = {
   :params =>  [:blue, :red],
@@ -94,17 +101,21 @@ end
 
 class BazApp < Sinatra::Base
   # only shows params
-  use Rack::ColorziedLogger(){|l| l.colors = {:params => [:blue, :red]} }
+  use Rack::ColorizedLogger do |l|
+    l.colors = {:params => [:blue, :red]}
+    l.path = false
+    l.assets = '/some/asset/path'
+  end
   get('/'){ 'baz' }
 end
 
 class BarApp < Sinatra::Base
   # uses defaults above again
-  use Rack::ColorziedLogger
+  use Rack::ColorizedLogger
   get('/'){ 'bar' }
 end
 
 map('/foo'){ run FooApp }
 map('/baz'){ run BazApp }
-map('/bar'){ run Barpp }
+map('/bar'){ run BarApp }
 ```

@@ -10,23 +10,34 @@ module Rack
       :cookies => [:green, :magenta]
     }
 
-    DEFAULT_OUTPUT = ::STDOUT
+    DEFAULT_OUTPUT = STDOUT
 
-    attr_writer :public, :colors, :out
+    attr_writer :public, :colors, :out, :path, :assets
 
     def initialize(app)
+      @app = app
+
+      if defined? Rails
+        @path = false
+        @public = ::File.join Rails.root, 'public'
+        @assets = '/assets'
+      else
+        @path = true
+        @public = nil
+        @assets = nil
+      end
+
       yield self if block_given?
+
       @colors ||= (defined? Rack::ColorizedLogger::COLORS) ? Rack::ColorizedLogger::COLORS : DEFAULT_COLORS
       @out ||= DEFAULT_OUTPUT
-      @app = app
       @public_map = Dir[::File.join(@public, '**', '*')].map {|f| ::File.basename f} if @public and ::File.directory? @public
     end
 
     def call env
       @request = Rack::Request.new(env)
-      selected_paths = (@public_map.nil? or @public_map.empty?) ? nil : @public_map.select {|p| @request.path.index("\/#{p}") == 0}
-      if selected_paths.nil? or selected_paths.empty?
-        @out.puts "path:".bold + " " + @request.path
+      if run?
+        @out.puts "path:".bold + " " + @request.path if @path
         @colors.each do |thing, color_a|
           if thing.respond_to? :call
             _thing = thing.call(@request)
@@ -38,10 +49,17 @@ module Rack
           end
         end
       end
+
       @app.call env
     end
 
     private
+
+    def run?
+      run = @public_map.select {|p| @request.path.index(%{/#{p}}) == 0}.empty?  if @public_map and not @public_map.empty?
+      run = @request.path.index(@assets) == 0 if @assets
+      run
+    end
 
     def pretty_colors_h(hash, k_color, v_color = nil, padding = 1, start = true)
       v_color ||= k_color
