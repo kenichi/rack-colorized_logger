@@ -81,7 +81,7 @@ module Rack
     end
 
     def pretty_colors_a(array, color)
-      "[" + array.map {|e| e.is_a?(Hash) ? e.inspect.bold.send(color) : e.bold.send(color)}.join(",") + "]"
+      "[" + array.map {|e| [Array,Hash].include?(e.class) ? e.inspect.bold.send(color) : e.bold.send(color)}.join(",") + "]"
     end
   end
 end

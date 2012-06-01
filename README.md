@@ -1,3 +1,5 @@
+*this needs tests!*
+
 Installation
 ------------
 `gem install rack-colorized_logger`
